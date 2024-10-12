@@ -1,4 +1,6 @@
 import { TouchableOpacity, View, Alert, StyleSheet, Text } from "react-native";
+import AntDesign from "@expo/vector-icons/AntDesign";
+import Entypo from "@expo/vector-icons/Entypo";
 import { theme } from "../theme";
 
 type Props = {
@@ -23,14 +25,23 @@ export function ShoppingListItem({ name, isCompleted = false }: Props) {
   };
 
   return (
-    <View style={[styles.itemContainer, isCompleted && styles.completedContainer]}>
-      <Text style={[styles.itemText, isCompleted && styles.completedText]}>{name}</Text>
-      <TouchableOpacity
-        onPress={handleDelete}
-        style={[styles.button, isCompleted && styles.completedButton]}
-        activeOpacity={0.8}
-      >
-        <Text style={[styles.buttonText, isCompleted && styles.completedText]}>Delete</Text>
+    <View
+      style={[styles.itemContainer, isCompleted && styles.completedContainer]}
+    >
+      <Entypo
+        name={isCompleted ? "check" : "circle"}
+        size={24}
+        color={isCompleted ? theme.colorCerulean : theme.colorGray}
+      />
+      <Text style={[styles.itemText, isCompleted && styles.completedText]}>
+        {name}
+      </Text>
+      <TouchableOpacity hitSlop={20} onPress={handleDelete}>
+        <AntDesign
+          name="closecircle"
+          size={24}
+          color={isCompleted ? theme.colorRed : theme.colorGray}
+        />
       </TouchableOpacity>
     </View>
   );
@@ -39,37 +50,23 @@ export function ShoppingListItem({ name, isCompleted = false }: Props) {
 const styles = StyleSheet.create({
   itemContainer: {
     paddingVertical: 16,
-    paddingHorizontal: 8,
+    paddingHorizontal: 18,
     borderBottomColor: theme.colorCerulean,
     borderBottomWidth: 1,
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",    
+    justifyContent: "space-between",
   },
   itemText: {
     fontSize: 18,
     fontWeight: "200",
   },
-  button: {
-    backgroundColor: theme.colorBlack,
-    padding: 8,
-    borderRadius: 6,
-  },
-  buttonText: {
-    color: "#fff",
-    fontWeight: "bold",
-    textTransform: "uppercase",
-    letterSpacing: 1,
-  },
-  completedContainer:{
-   backgroundColor: theme.colorLightGray,
-   borderBottomColor: theme.colorLightGray,
+  completedContainer: {
+    backgroundColor: theme.colorLightGray,
+    borderBottomColor: theme.colorLightGray,
   },
   completedText: {
     color: theme.colorGray,
     textDecorationLine: "line-through",
-  },
-  completedButton: {
-    backgroundColor: theme.colorLightGray,
   },
 });
