@@ -7,7 +7,8 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "fix":"npm run lint -- --fix "
   },
   "dependencies": {
     "expo": "~51.0.28",

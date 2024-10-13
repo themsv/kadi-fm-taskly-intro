@@ -6,6 +6,7 @@ import { ShoppingListItem } from "../components/ShoppingListItem";
 type ShoppingListItemType = {
   id: string;
   name: string;
+  completedAt?: string;
 };
 
 const initialList = [
@@ -94,9 +95,28 @@ export default function App() {
       {
         id: new Date().getTime().toString(),
         name: value,
+        completedAt: "",
       },
     ]);
     setValue("");
+  };
+
+  const handleOnDelete = (id: string) => {
+    const newList = shoppingList.filter((_) => _.id !== id);
+    setShoppingList(newList);
+  };
+
+  const handleToggleComplete = (id: string) => {
+    const newList = shoppingList.map((item) => {
+      if (item.id === id) {
+        return {
+          ...item,
+          completedAt: item.completedAt ? "" : new Date().toDateString(),
+        };
+      }
+      return item;
+    });
+    setShoppingList(newList);
   };
 
   return (
@@ -106,7 +126,13 @@ export default function App() {
       contentContainerStyle={styles.contentContainer}
       stickyHeaderIndices={[0]}
       renderItem={({ item }) => (
-        <ShoppingListItem key={item.id} name={item.name} />
+        <ShoppingListItem
+          key={item.id}
+          name={item.name}
+          onDelete={() => handleOnDelete(item.id)}
+          onToggleComplete={() => handleToggleComplete(item.id)}
+          isCompleted={Boolean(item.completedAt)}
+        />
       )}
       ListEmptyComponent={
         <View style={{ alignItems: "center" }}>
