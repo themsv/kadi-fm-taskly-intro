@@ -6,87 +6,12 @@ import { ShoppingListItem } from "../components/ShoppingListItem";
 type ShoppingListItemType = {
   id: string;
   name: string;
-  completedAt?: string;
+  completedAt?: number;
+  lastUpdateAt: number;
 };
 
-const initialList = [
-  {
-    id: "901",
-    name: "Apple",
-  },
-  {
-    id: "902",
-    name: "Tea",
-  },
-  {
-    id: "903",
-    name: "Coffee",
-  },
-  {
-    id: "904",
-    name: "Bread",
-  },
-  {
-    id: "905",
-    name: "Milk",
-  },
-  {
-    id: "906",
-    name: "Eggs",
-  },
-  {
-    id: "907",
-    name: "Cheese",
-  },
-  {
-    id: "908",
-    name: "Pasta",
-  },
-  {
-    id: "909",
-    name: "Tomatoes",
-  },
-  {
-    id: "910",
-    name: "Chicken",
-  },
-  {
-    id: "911",
-    name: "Bananas",
-  },
-  {
-    id: "912",
-    name: "Yogurt",
-  },
-  {
-    id: "913",
-    name: "Cereal",
-  },
-  {
-    id: "914",
-    name: "Carrots",
-  },
-  {
-    id: "915",
-    name: "Potatoes",
-  },
-  {
-    id: "916",
-    name: "Onions",
-  },
-  {
-    id: "1012",
-    name: "Coconut Oil",
-  },
-  {
-    id: "1013",
-    name: "Almonds",
-  },
-];
-
 export default function App() {
-  const [shoppingList, setShoppingList] =
-    useState<ShoppingListItemType[]>(initialList);
+  const [shoppingList, setShoppingList] = useState<ShoppingListItemType[]>([]);
   const [value, setValue] = useState("");
 
   const handleSubmit = () => {
@@ -95,7 +20,7 @@ export default function App() {
       {
         id: new Date().getTime().toString(),
         name: value,
-        completedAt: "",
+        lastUpdateAt: Date.now(),
       },
     ]);
     setValue("");
@@ -111,18 +36,40 @@ export default function App() {
       if (item.id === id) {
         return {
           ...item,
-          completedAt: item.completedAt ? "" : new Date().toDateString(),
+          lastUpdateAt: Date.now(),
+          completedAt: item.completedAt ? "" : Date.now(),
         };
       }
       return item;
     });
     setShoppingList(newList);
   };
+  function orderShoppingList(shoppingList: ShoppingListItemType[]) {
+    return shoppingList.sort((item1, item2) => {
+      if (item1.completedAt && item2.completedAt) {
+        return item2.completedAt - item1.completedAt;
+      }
+
+      if (item1.completedAt && !item2.completedAt) {
+        return 1;
+      }
+
+      if (!item1.completedAt && item2.completedAt) {
+        return -1;
+      }
+
+      if (!item1.completedAt && !item2.completedAt) {
+        return item2.lastUpdateAt - item1.lastUpdateAt;
+      }
+
+      return 0;
+    });
+  }
 
   return (
     <FlatList
       style={styles.scrollView}
-      data={shoppingList}
+      data={orderShoppingList(shoppingList)}
       contentContainerStyle={styles.contentContainer}
       stickyHeaderIndices={[0]}
       renderItem={({ item }) => (
