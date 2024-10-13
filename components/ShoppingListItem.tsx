@@ -9,6 +9,7 @@ type Props = {
 };
 
 export function ShoppingListItem({ name, isCompleted = false }: Props) {
+  console.log(name);
   const handleDelete = () => {
     Alert.alert(
       `Are you sure you want to delete ${name}?`,
@@ -51,6 +52,7 @@ const styles = StyleSheet.create({
   itemContainer: {
     paddingVertical: 16,
     paddingHorizontal: 18,
+    margin: 4,
     borderBottomColor: theme.colorCerulean,
     borderBottomWidth: 1,
     flexDirection: "row",
