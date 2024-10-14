@@ -10,6 +10,8 @@ import {
 import { theme } from "../theme";
 import { ShoppingListItem } from "../components/ShoppingListItem";
 import { getFromStorage, saveToStorage } from "../utils/storage";
+import * as Haptics from "expo-haptics";
+//System Haptics setting should be on on IOS
 
 const APP_STORAGE_KEY = "SHOPPING_LIST";
 
@@ -36,6 +38,7 @@ export default function App() {
     ]);
     setValue("");
     saveToStorage(APP_STORAGE_KEY, shoppingList);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
   };
 
   const handleOnDelete = (id: string) => {
@@ -48,6 +51,10 @@ export default function App() {
   const handleToggleComplete = (id: string) => {
     const newList = shoppingList.map((item) => {
       if (item.id === id) {
+        if (item.completedAt)
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+        else
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
         return {
           ...item,
           lastUpdateAt: Date.now(),
