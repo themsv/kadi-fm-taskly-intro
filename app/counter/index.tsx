@@ -14,13 +14,13 @@ type CountDownStatus = {
   distance: Duration;
 };
 
-type PersistedCountdownState = {
+export type PersistedCountdownState = {
   currentNoficationId: string | undefined;
   completedAt: number[];
 };
 
 const FREQUENCY = 10 * 1000;
-const countDownStorageKey = "taskly-countdown";
+export const countDownStorageKey = "taskly-countdown";
 
 export default function CounterScreen() {
   const [status, setStatus] = useState<CountDownStatus>({
@@ -45,14 +45,14 @@ export default function CounterScreen() {
       if (isDevice) {
         Alert.alert(
           "Needs Permissions",
-          "Enable permission for notification for ExpoGo app in settings",
+          "Enable permission for notification for ExpoGo app in settings"
         );
       }
     }
 
     if (countDown?.currentNoficationId) {
       await Notifications.cancelScheduledNotificationAsync(
-        countDown.currentNoficationId,
+        countDown.currentNoficationId
       );
     }
 
@@ -88,7 +88,7 @@ export default function CounterScreen() {
           : {
               end: timeStamp,
               start: Date.now(),
-            },
+            }
       );
       setStatus({
         isOverdue,
