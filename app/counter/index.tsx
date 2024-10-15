@@ -7,29 +7,38 @@ import { Duration, intervalToDuration, isBefore } from "date-fns";
 import { registerForPushNotificationsAsync } from "../../utils/registerForPushNotificationsAsync";
 import { theme } from "../../theme";
 import { TimeSegment } from "../../components/TimeSegment";
+import { getFromStorage, saveToStorage } from "../../utils/storage";
 
 type CountDownStatus = {
   isOverdue: boolean;
   distance: Duration;
 };
 
-const TIMESTAMP = Date.now() + 10 * 1000;
+type PersistedCountdownState = {
+  currentNoficationId: string | undefined;
+  completedAt: number[];
+};
+
+const FREQUENCY = 10 * 1000;
+const countDownStorageKey = "taskly-countdown";
 
 export default function CounterScreen() {
   const [status, setStatus] = useState<CountDownStatus>({
     isOverdue: false,
     distance: {},
   });
+  const [countDown, setCountDown] = useState<PersistedCountdownState>();
 
   const handleRequestPermission = async () => {
+    let pushNotificationId;
     const result = await registerForPushNotificationsAsync();
     if (result === "granted") {
-      await Notifications.scheduleNotificationAsync({
+      pushNotificationId = await Notifications.scheduleNotificationAsync({
         content: {
-          title: "Plantly! I am notification, drink water",
+          title: "Plantly! Running out of Time",
         },
         trigger: {
-          seconds: 5,
+          seconds: FREQUENCY / 1000,
         },
       });
     } else {
@@ -40,16 +49,44 @@ export default function CounterScreen() {
         );
       }
     }
+
+    if (countDown?.currentNoficationId) {
+      await Notifications.cancelScheduledNotificationAsync(
+        countDown.currentNoficationId,
+      );
+    }
+
+    const newCountDownState: PersistedCountdownState = {
+      currentNoficationId: pushNotificationId,
+      completedAt: countDown?.completedAt
+        ? [Date.now(), ...countDown.completedAt]
+        : [Date.now()],
+    };
+    setCountDown(newCountDownState);
+    await saveToStorage(countDownStorageKey, newCountDownState);
   };
 
   useEffect(() => {
+    const initial = async () => {
+      const value = await getFromStorage(countDownStorageKey);
+      setCountDown(value);
+    };
+    initial();
+  }, []);
+
+  const lastCompletedAt = countDown?.completedAt[0];
+
+  useEffect(() => {
     const id = setInterval(() => {
-      const isOverdue = isBefore(TIMESTAMP, Date.now());
+      const timeStamp = lastCompletedAt
+        ? lastCompletedAt + FREQUENCY
+        : Date.now();
+      const isOverdue = isBefore(timeStamp, Date.now());
       const distance = intervalToDuration(
         isOverdue
-          ? { end: Date.now(), start: TIMESTAMP }
+          ? { end: Date.now(), start: timeStamp }
           : {
-              end: TIMESTAMP,
+              end: timeStamp,
               start: Date.now(),
             },
       );
@@ -60,7 +97,7 @@ export default function CounterScreen() {
     }, 1000);
 
     return () => clearInterval(id);
-  }, []);
+  }, [lastCompletedAt]);
   return (
     <View
       style={[
