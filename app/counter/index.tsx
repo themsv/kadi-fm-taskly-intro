@@ -1,8 +1,17 @@
-import { useEffect, useState } from "react";
-import { Text, View, StyleSheet, TouchableOpacity, Alert } from "react-native";
+import { useEffect, useRef, useState } from "react";
+import {
+  Text,
+  View,
+  StyleSheet,
+  TouchableOpacity,
+  Alert,
+  useWindowDimensions,
+} from "react-native";
 import * as Notifications from "expo-notifications";
 import { isDevice } from "expo-device";
 import { Duration, intervalToDuration, isBefore } from "date-fns";
+import ConfettiCannon from "react-native-confetti-cannon";
+import * as Haptics from "expo-haptics";
 
 import { registerForPushNotificationsAsync } from "../../utils/registerForPushNotificationsAsync";
 import { theme } from "../../theme";
@@ -27,9 +36,14 @@ export default function CounterScreen() {
     isOverdue: false,
     distance: {},
   });
+  const confettiRef = useRef<any>();
   const [countDown, setCountDown] = useState<PersistedCountdownState>();
 
+  const { width } = useWindowDimensions();
+
   const handleRequestPermission = async () => {
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    confettiRef?.current?.start();
     let pushNotificationId;
     const result = await registerForPushNotificationsAsync();
     if (result === "granted") {
@@ -124,8 +138,15 @@ export default function CounterScreen() {
         activeOpacity={0.2}
         style={styles.button}
       >
-        <Text style={styles.buttonText}>Schedule Notification</Text>
+        <Text style={styles.buttonText}>I have done thing</Text>
       </TouchableOpacity>
+      <ConfettiCannon
+        ref={confettiRef}
+        origin={{ x: width / 2, y: 0 }}
+        count={50}
+        fadeOut={true}
+        autoStart={false}
+      />
     </View>
   );
 }
